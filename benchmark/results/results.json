@@ -1,0 +1,88 @@
+{
+  "session_id": "benchmark_1791662897",
+  "timestamp": "2026-10-11T01:40:08.374518",
+  "token_counter": "gemini-countTokens",
+  "scenarios": [
+    {
+      "name": "failing_pytest",
+      "workload": "Enterprise async pytest suite with multiple cascading failures",
+      "baseline_tokens": 2336,
+      "frugal_tokens": 209,
+      "saved_tokens": 2127,
+      "reduction_percent": 91.05,
+      "tier_used": 2,
+      "gemma_overhead_tokens": 2690,
+      "net_tokens_saved": -563,
+      "net_reduction_percent": -24.1
+    },
+    {
+      "name": "noisy_npm_install",
+      "workload": "Enterprise 8-package monorepo pnpm install with native C++ bindings",
+      "baseline_tokens": 2743,
+      "frugal_tokens": 93,
+      "saved_tokens": 2650,
+      "reduction_percent": 96.61,
+      "tier_used": 1,
+      "gemma_overhead_tokens": 0,
+      "net_tokens_saved": 2650,
+      "net_reduction_percent": 96.61
+    },
+    {
+      "name": "repeated_file_read",
+      "workload": "3 consecutive reads of enterprise 440-line billing gateway service",
+      "baseline_tokens": 12651,
+      "frugal_tokens": 4381,
+      "saved_tokens": 8270,
+      "reduction_percent": 65.37,
+      "tier_used": 1,
+      "gemma_overhead_tokens": 0,
+      "net_tokens_saved": 8270,
+      "net_reduction_percent": 65.37
+    },
+    {
+      "name": "agent_death_loop",
+      "workload": "Agent blind retry loop executing identical failing PostgreSQL migration 3x",
+      "baseline_tokens": 2361,
+      "frugal_tokens": 1711,
+      "saved_tokens": 650,
+      "reduction_percent": 27.53,
+      "tier_used": 1,
+      "gemma_overhead_tokens": 0,
+      "net_tokens_saved": 650,
+      "net_reduction_percent": 27.53
+    },
+    {
+      "name": "ui_bug_screenshot",
+      "workload": "Multimodal inspection of 1080p enterprise Kubernetes observability dashboard",
+      "baseline_tokens": 258,
+      "frugal_tokens": 131,
+      "saved_tokens": 127,
+      "reduction_percent": 49.22,
+      "tier_used": 3,
+      "gemma_overhead_tokens": 476,
+      "net_tokens_saved": -349,
+      "net_reduction_percent": -135.27
+    },
+    {
+      "name": "complex_traceback",
+      "workload": "Distributed microservice 4-tier crash dump with OpenTelemetry and gRPC timeout",
+      "baseline_tokens": 2606,
+      "frugal_tokens": 284,
+      "saved_tokens": 2322,
+      "reduction_percent": 89.1,
+      "tier_used": 2,
+      "gemma_overhead_tokens": 3001,
+      "net_tokens_saved": -679,
+      "net_reduction_percent": -26.06
+    }
+  ],
+  "total": {
+    "baseline_tokens": 22955,
+    "frugal_tokens": 6809,
+    "saved_tokens": 16146,
+    "reduction_percent": 70.34,
+    "gemma_overhead_tokens": 6167,
+    "net_tokens_saved": 9979,
+    "net_reduction_percent": 43.47
+  }
+}

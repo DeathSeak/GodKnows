@@ -1,0 +1,125 @@
+2026-10-11T00:15:31.902Z [envoy.access_log] "POST /v3/checkout/orders HTTP/1.1" 504 UT 30004 0 0 "-" "Go-http-client/1.1" "4bf92f3577b34da6a3ce929d0e0e4736" "api-gw.prod.internal" "10.244.3.18:8080"
+2026-10-11T00:15:32.104Z [uvicorn.error] ERROR: Exception in ASGI application
+[trace_id=4bf92f3577b34da6a3ce929d0e0e4736 span_id=00f067aa0ba902b7 parent_id=5c34a9b0e2f187a1 service=checkout-orchestrator]
+Traceback (most recent call last):
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/asyncpg/connection.py", line 412, in _connect
+    return await asyncio.wait_for(
+        self._protocol.connect(),
+        timeout=self._timeout
+    )
+  File "/usr/local/lib/python3.11/asyncio/tasks.py", line 452, in wait_for
+    return await fut
+asyncio.exceptions.TimeoutError: Connection establishment timed out after 5.0 seconds on target socket tcp://10.244.7.12:5432
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 521, in create_connect
+    return await asyncpg.connect(
+        host=self.url.host,
+        port=self.url.port or 5432,
+        user=self.url.username,
+        password=self.url.password,
+        database=self.url.database,
+        ssl=self.ssl,
+        command_timeout=self.command_timeout,
+        server_settings=self.server_settings,
+    )
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/asyncpg/connection.py", line 2253, in connect
+    return await connect_utils._connect(
+        *args,
+        connection_class=connection_class,
+        record_class=record_class,
+        **kwargs
+    )
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/asyncpg/connect_utils.py", line 984, in _connect
+    raise last_error
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/asyncpg/connect_utils.py", line 970, in _connect
+    con = await _connect_addr(
+        addr,
+        connector,
+        config,
+        timeout=timeout
+    )
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/asyncpg/connect_utils.py", line 872, in _connect_addr
+    tr, pr = await connector()
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 1085, in create_connection
+    raise exceptions[0]
+  File "/usr/local/lib/python3.11/asyncio/base_events.py", line 1069, in create_connection
+    sock = await [loop.sock_connect(sock, address) for sock in socks][0]
+OSError: [Errno 110] ETIMEDOUT: Connection timed out connecting to PostgreSQL primary replica at 10.244.7.12:5432
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3266, in _wrap_pool_connect
+    return fn()
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 327, in connect
+    return _ConnectionFairy._checkout(self)
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 894, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 493, in checkout
+    rec = pool._do_get()
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 145, in _do_get
+    raise exc.TimeoutError(
+sqlalchemy.exc.TimeoutError: QueuePool limit of size 20 overflow 10 reached, connection timed out, timeout 30.00 (Background checkouts: 30 active, 0 available, 48 queued)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/app/services/checkout/orchestrator.py", line 184, in create_order_with_ledger_reservation
+    async with db_session_factory() as session:
+      async with session.begin():
+        await session.execute(
+            select(CustomerBalance).where(CustomerBalance.tenant_id == tenant_id).with_for_update()
+        )
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/session.py", line 512, in execute
+    result = await self._connection.execute(clause, params, execution_options)
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/engine.py", line 398, in execute
+    raw_conn = await self.get_raw_connection()
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/engine.py", line 372, in get_raw_connection
+    return await self._sync_engine.raw_connection()
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3288, in raw_connection
+    return self._wrap_pool_connect(
+sqlalchemy.exc.OperationalError: (sqlalchemy.dialects.postgresql.asyncpg.OperationalError)
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+PoolTimeout: QueuePool limit reached. All 30 database connections are held by active worker threads waiting on advisory lock pg_advisory_xact_lock(0x7F9A12DE).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/app/api/routers/checkout.py", line 92, in submit_checkout
+    order_result = await orchestrator.create_order_with_ledger_reservation(
+        tenant_id=req.tenant_id,
+        items=req.line_items,
+        idempotency_token=req.idempotency_key
+    )
+  File "/opt/app/services/checkout/orchestrator.py", line 214, in create_order_with_ledger_reservation
+    await fallback_circuit_breaker.record_failure(tenant_id=tenant_id, reason="POOL_EXHAUSTED")
+  File "/opt/app/services/resilience/breaker.py", line 64, in record_failure
+    raise grpc.RpcError(
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.DEADLINE_EXCEEDED
+	details = "gRPC channel to inventory-service:50051 deadline exceeded after 30000ms while waiting on lock resolution"
+	debug_error_string = "UNKNOWN:Error received from peer {created_time:"2026-10-11T00:15:32.091Z", grpc_status:4, slice:client_transport}"
+>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 65, in __call__
+    await self.app(scope, receive, send)
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/opt/venvs/frugal-api/lib/python3.11/site-packages/starlette/routing.py", line 69, in app
+    response = await func(request)
+  File "/opt/app/api/routers/checkout.py", line 108, in submit_checkout
+    raise HTTPException(
+fastapi.exceptions.HTTPException: 500: Internal Server Error - Critical deadlock cascade: Database pool exhausted (30/30) and upstream gRPC checkout deadline exceeded.
+Incident ID: INC-98124 | Node: pod/checkout-orchestrator-7d8b9f-x9w2q | Recommendation: Kill locking backend PID 48192 on postgresql-primary.

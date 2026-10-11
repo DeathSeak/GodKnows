@@ -1,0 +1,37 @@
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Frugal Runtime Data & Telemetry
+.frugal/
+*.db
+*.sqlite
+
+# Python & Build Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# IDE & OS Metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
