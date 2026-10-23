@@ -9,7 +9,7 @@ dependencies = [
     "toml>=0.10.2",
     "click>=8.0.0",
     "tiktoken>=0.14.0",
-    "pillow>=12.3.0",
+    "pillow>=13.0.0",
 ]
 
 [project.optional-dependencies]
